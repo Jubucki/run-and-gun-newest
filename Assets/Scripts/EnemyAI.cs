@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
  
 public class EnemyAI : MonoBehaviour
 {
@@ -33,11 +34,21 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
         if (animator == null) animator = GetComponent<Animator>();
         if (playerHealth == null && player != null) playerHealth = player.GetComponent<PlayerHealth>();
  
         SetNewPatrolPoint();
         currentState = State.Patrol;
+        StartCoroutine(InitAfterSpawn());
+    }
+    
+    
+    IEnumerator InitAfterSpawn()
+    {
+        yield return null; // einen Frame warten
+        if (agent.isOnNavMesh)
+            SetNewPatrolPoint();
     }
  
     void Update()
@@ -92,9 +103,11 @@ public class EnemyAI : MonoBehaviour
     {
         if (isIdle)
         {
+            agent.isStopped = true;
             idleTimer += Time.deltaTime;
             if (idleTimer >= patrolIdleTime)
             {
+                agent.isStopped = false;
                 SetNewPatrolPoint();
                 idleTimer = 0f;
             }
