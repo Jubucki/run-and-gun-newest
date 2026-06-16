@@ -10,6 +10,7 @@ public class Projectile : MonoBehaviour
 {
     //bullet 
     public GameObject bullet;
+    public float damage = 100f;
 
     //bullet force
     public float shootForce, upwardForce;
@@ -39,11 +40,20 @@ public class Projectile : MonoBehaviour
 
     //bug fixing :D
     public bool allowInvoke = true;
-    
-    
 
+    [Header("Audio")]
+    public AudioClip shootSound;
+    private AudioSource audioSource;
+    
     private void Awake()
     {
+        // Get or add AudioSource
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
         //make sure magazine is full
         bulletsLeft = magazineSize;
         readyToShoot = true;
@@ -82,39 +92,45 @@ public class Projectile : MonoBehaviour
     {
         readyToShoot = false;
 
-        //Find the exact hit position using a raycast
-        Ray ray = fpsCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); //Just a ray through the middle of your current view
-        RaycastHit hit;
+        // Play shooting sound
+        if (shootSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
 
-        //check if ray hits something
-        Vector3 targetPoint;
-        if (Physics.Raycast(ray, out hit))
-            targetPoint = hit.point;
-        else
-            targetPoint = ray.GetPoint(75); //Just a point far away from the player
-
-        //Calculate direction from attackPoint to targetPoint
-        Vector3 directionWithoutSpread = targetPoint - attackPoint.position;
-
-        //Calculate spread
+        // Calculate spread
         float x = Random.Range(-spread, spread);
         float y = Random.Range(-spread, spread);
 
-        //Calculate new direction with spread
-        Vector3 directionWithSpread = directionWithoutSpread + new Vector3(x, y, 0); //Just add spread to last direction
-
-        //Instantiate bullet/projectile
-        GameObject currentBullet = Instantiate(bullet, attackPoint.position, Quaternion.FromToRotation(new Vector3(0,1,0),directionWithoutSpread)); //store instantiated bullet in currentBullet
-        //Rotate bullet to shoot direction
-        currentBullet.transform.forward = directionWithSpread.normalized;
-        currentBullet.transform.Rotate(90, 0, 0);
-
-        //Add forces to bullet
-        currentBullet.GetComponent<Rigidbody>().AddForce(directionWithSpread.normalized * shootForce, ForceMode.Impulse);
-        currentBullet.GetComponent<Rigidbody>().AddForce(fpsCam.transform.up * upwardForce, ForceMode.Impulse);
-
-        //Instantiate muzzle flash, if you have one
+        // Get ray through the center of the camera (exactly matching the crosshair)
+        Ray ray = fpsCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         
+        // Add spread to the ray direction
+        Vector3 rayDirection = ray.direction + fpsCam.transform.right * x + fpsCam.transform.up * y;
+        rayDirection.Normalize();
+
+        RaycastHit hit;
+        int layerMask = ~(1 << 13); // Ignore Player layer (13)
+
+        // Perform raycast directly from camera to find hits
+        if (Physics.Raycast(ray.origin, rayDirection, out hit, 500f, layerMask))
+        {
+            Debug.Log($"Raycast hit: {hit.collider.name} on layer {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
+            
+            // Search for EnemyHealth component in parent or children
+            EnemyHealth enemyHealth = hit.collider.GetComponentInParent<EnemyHealth>();
+            if (enemyHealth == null)
+            {
+                enemyHealth = hit.transform.root.GetComponentInChildren<EnemyHealth>();
+            }
+
+            if (enemyHealth != null)
+            {
+                Debug.Log($"EnemyHealth found on {enemyHealth.gameObject.name}, dealing {damage} damage via Camera Raycast.");
+                enemyHealth.TakeDamage(damage);
+            }
+        }
+
         //Instantiate muzzle flash, if you have one
         if (muzzleFlash != null)
         {
@@ -139,7 +155,7 @@ public class Projectile : MonoBehaviour
             allowInvoke = false;
 
             //Add recoil to player (should only be called once)
-            playerRb.AddForce(-directionWithSpread.normalized * recoilForce, ForceMode.Impulse);
+            playerRb.AddForce(-rayDirection * recoilForce, ForceMode.Impulse);
         }
 
         //if more than one bulletsPerTap make sure to repeat shoot function

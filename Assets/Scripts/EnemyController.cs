@@ -5,40 +5,135 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    
     private static readonly int isWalking = Animator.StringToHash("isWalking");
+    private static readonly int isAttacking = Animator.StringToHash("Attack");
+
     [Header("References")]
     [SerializeField] private Transform[] patrolPoints;
-    
+    [SerializeField] private Transform player;
+
     [Header("Settings")]
     [SerializeField] private float patrolWaitTime = 0f;
     [SerializeField] private float StopAtDistance = 0.5f;
     [SerializeField] private float wanderRadius = 50f;
-    
+
+    [Header("Chase Settings")]
+    [SerializeField] private float chaseRange = 10f;
+    [SerializeField] private float loseRange = 15f;
+
+    [Header("Attack Settings")]
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField] private int damageAmount = 10;
+
     private NavMeshAgent _agent;
     private Animator _animator;
+    private bool isChasing = false;
+    private float lastAttackTime = -999f;
 
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
+
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) player = playerObj.transform;
+        }
     }
-    
+
     private void Start()
     {
         SetNewDestination();
     }
-    
+
     private void Update()
     {
-        Patrol();
+        CheckPlayerDistance();
+
+        if (isChasing)
+        {
+            HandleChaseAndAttack();
+        }
+        else
+        {
+            Patrol();
+        }
+
         UpdateAnimatons();
+    }
+
+    private void CheckPlayerDistance()
+    {
+        if (player == null) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        if (!isChasing && distance <= chaseRange)
+        {
+            isChasing = true;
+        }
+        else if (isChasing && distance > loseRange)
+        {
+            isChasing = false;
+            SetNewDestination();
+        }
+    }
+
+    private void HandleChaseAndAttack()
+    {
+        if (_agent == null || !_agent.isOnNavMesh || player == null) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        if (distance <= attackRange)
+        {
+            _agent.isStopped = true;
+            _agent.ResetPath();
+
+            // Face the player while attacking
+            Vector3 direction = (player.position - transform.position).normalized;
+            direction.y = 0;
+            if (direction != Vector3.zero)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
+            }
+
+            if (Time.time - lastAttackTime >= attackCooldown)
+            {
+                lastAttackTime = Time.time;
+                _animator.SetTrigger(isAttacking);
+                PerformAttack();
+            }
+        }
+        else
+        {
+            _agent.isStopped = false;
+            _agent.SetDestination(player.position);
+        }
+    }
+
+    private void PerformAttack()
+    {
+        if (player == null) return;
+
+        PlayerHealth ph = player.GetComponent<PlayerHealth>();
+        if (ph != null)
+        {
+            // Apply damage if player is still within reach
+            float distance = Vector3.Distance(transform.position, player.position);
+            if (distance <= attackRange + 0.5f)
+            {
+                ph.TakeDamage(damageAmount);
+            }
+        }
     }
 
     private void Patrol()
     {
         if (_agent == null || !_agent.isOnNavMesh) return;
-        
+
         if (!_agent.pathPending && _agent.remainingDistance <= StopAtDistance)
         {
             SetNewDestination();
@@ -54,11 +149,9 @@ public class EnemyController : MonoBehaviour
 
         if (patrolPoints != null && patrolPoints.Length > 0)
         {
-            // Pick a random patrol point
             int randomIndex = UnityEngine.Random.Range(0, patrolPoints.Length);
             targetPoint = patrolPoints[randomIndex].position;
-            
-            // Sample position to ensure it's on NavMesh
+
             if (NavMesh.SamplePosition(targetPoint, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
             {
                 targetPoint = hit.position;
@@ -67,12 +160,11 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            // Pick a random NavMesh point within wanderRadius
-            for (int i = 0; i < 5; i++) // 5 retries
+            for (int i = 0; i < 5; i++)
             {
                 Vector3 randomDirection = UnityEngine.Random.insideUnitSphere * wanderRadius;
                 randomDirection += transform.position;
-                
+
                 if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
                 {
                     targetPoint = hit.position;
@@ -90,9 +182,9 @@ public class EnemyController : MonoBehaviour
 
     private void UpdateAnimatons()
     {
-        // Force isWalking to true if we are moving towards a target, 
-        // even if velocity is 0 because of NavMesh issues.
-        bool isWalking = (_agent != null && _agent.hasPath) || (_agent != null && _agent.velocity.sqrMagnitude > 0.01f);
-        _animator.SetBool("isWalking", isWalking);
+        if (_animator == null || _animator.runtimeAnimatorController == null) return;
+
+        bool moving = _agent != null && _agent.velocity.sqrMagnitude > 0.01f;
+        _animator.SetBool(isWalking, moving);
     }
 }

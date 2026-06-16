@@ -769,7 +769,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ce65fa103f0e84b4289374b2a4bf93f8, type: 3}
+  - {fileID: 2100000, guid: 5904dd0a529b04581bcb1180ed1a5286, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -796,7 +796,7 @@ SkinnedMeshRenderer:
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
   m_SkinnedMotionVectors: 1
-  m_Mesh: {fileID: 4300000, guid: ce65fa103f0e84b4289374b2a4bf93f8, type: 3}
+  m_Mesh: {fileID: 4300000, guid: bf1276f8e4e24ca30b9aa6e695751f53, type: 3}
   m_Bones:
   - {fileID: 4898144924999208}
   - {fileID: 4107578256655884}
@@ -945,6 +945,8 @@ GameObject:
   - component: {fileID: 1926098734069462248}
   - component: {fileID: 1167637653687475408}
   - component: {fileID: -9170589780253990681}
+  - component: {fileID: 8023615792849287654}
+  - component: {fileID: 4309843189750412175}
   m_Layer: 0
   m_Name: Ghoul
   m_TagString: Untagged
@@ -981,7 +983,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1309486516299566}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: ce65fa103f0e84b4289374b2a4bf93f8, type: 3}
+  m_Avatar: {fileID: 9000000, guid: bf1276f8e4e24ca30b9aa6e695751f53, type: 3}
   m_Controller: {fileID: 9100000, guid: 2073daca1c69548219aa8a40a55978f5, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
@@ -1066,6 +1068,43 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &8023615792849287654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309486516299566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 003c1af498c2048c98954a0e888b220e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  maxHealth: 100
+  deathSound: {fileID: 8300000, guid: 5ca4c55c73cca63e589ba2188356420a, type: 3}
+  currentHealth: 0
+--- !u!114 &4309843189750412175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309486516299566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7535f1924de0642aea495a3df8d0ec28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  patrolPoints: []
+  player: {fileID: 0}
+  patrolWaitTime: 0
+  StopAtDistance: 0.5
+  wanderRadius: 50
+  chaseRange: 10
+  loseRange: 15
+  attackRange: 2
+  attackCooldown: 1.5
+  damageAmount: 10
 --- !u!1 &1312574273513674
 GameObject:
   m_ObjectHideFlags: 0

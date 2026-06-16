@@ -24,16 +24,20 @@ public class EnemySpawner : MonoBehaviour
     [Header("Spawn Punkte")]
     public Transform[] fixedSpawnPoints; // Feste Punkte (optional)
     public float randomSpawnRadius = 10f; // Radius für zufälligen NavMesh-Spawn
+    public float minSpawnDistance = 5f; // Mindestabstand zum Spieler
 
     [Header("Status (readonly)")]
     [SerializeField] private int currentWaveIndex = 0;
     [SerializeField] private int enemiesAlive = 0;
     [SerializeField] private bool spawning = false;
+    private Transform playerTransform;
 
     private List<GameObject> activeEnemies = new List<GameObject>();
 
     void Start()
     {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null) playerTransform = player.transform;
         StartCoroutine(RunWaves());
     }
 
@@ -82,10 +86,23 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemy()
     {
-        Vector3 spawnPos = GetSpawnPosition();
-        if (spawnPos == Vector3.zero) return;
+        Vector3 spawnPos = Vector3.zero;
+        int maxAttempts = 10;
         
-      
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            Vector3 potentialPos = GetSpawnPosition();
+            if (potentialPos != Vector3.zero)
+            {
+                if (playerTransform == null || Vector3.Distance(potentialPos, playerTransform.position) >= minSpawnDistance)
+                {
+                    spawnPos = potentialPos;
+                    break;
+                }
+            }
+        }
+
+        if (spawnPos == Vector3.zero) return;
 
         GameObject enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
         activeEnemies.Add(enemy);

@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
+    public KeyCode menuKey = KeyCode.Escape;
 
     [Header("Ground Check")] 
     public float playerHeight;
@@ -88,6 +89,13 @@ public class PlayerMovement : MonoBehaviour
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
+
+        // Go back to Main Menu
+        if (Input.GetKeyDown(menuKey))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu#");
+            return;
+        }
         
         //when to jump
         if (Input.GetKeyDown(jumpKey) && readyToJump && grounded)

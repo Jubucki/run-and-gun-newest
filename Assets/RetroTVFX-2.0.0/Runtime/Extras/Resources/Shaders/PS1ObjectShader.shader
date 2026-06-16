@@ -1,88 +1,154 @@
 ﻿Shader "Retro/RetroDiffuse"
 {
-	Properties
-	{
-		_Color("Color", COLOR) = (1,1,1,1)
-		_AmbientColor("Ambient", COLOR) = (1,1,1,1)
-		_MainTex("Texture", 2D) = "white" {}
+    Properties
+    {
+        _Color("Color", COLOR) = (1,1,1,1)
+        _AmbientColor("Ambient", COLOR) = (1,1,1,1)
+        _MainTex("Texture", 2D) = "white" {}
+        _ResolutionX("Resolution X", Int) = 320
+        _ResolutionY("Resolution Y", Int) = 240
+    }
 
-		_ResolutionX("Resolution X", Int) = 320
-		_ResolutionY("Resolution Y", Int) = 240
-	}
-		SubShader
-	{
-		Tags { "RenderType" = "Opaque" }
-		LOD 100
+    SubShader
+    {
+        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
+        LOD 100
 
-		Pass
-		{
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			// make fog work
-			#pragma multi_compile_fog
+        Pass
+        {
+            Name "ForwardLit"
+            Tags { "LightMode" = "UniversalForward" }
 
-			#include "UnityCG.cginc"
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fog
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _SHADOWS_SOFT
 
-			struct appdata
-			{
-				float4 vertex : POSITION;
-				float3 normal : NORMAL;
-				float2 uv : TEXCOORD0;
-			};
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-			struct v2f
-			{
-				float2 uv : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
-				float4 vertex : SV_POSITION;
-				half4 col : TEXCOORD3;
-				float4 pos : TEXCOORD2;
-			};
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float2 uv : TEXCOORD0;
+            };
 
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                float4 vertex : SV_POSITION;
+                half4 col : TEXCOORD3;
+                float4 pos : TEXCOORD2;
+                float fogFactor : TEXCOORD4;
+                float3 worldPos : TEXCOORD5;
+            };
 
-			float4 _Color;
-			float4 _AmbientColor;
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
 
-			int _ResolutionX;
-			int _ResolutionY;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _Color;
+                float4 _AmbientColor;
+                int _ResolutionX;
+                int _ResolutionY;
+            CBUFFER_END
 
-			v2f vert(appdata v)
-			{
-				v2f o;
+            v2f vert(appdata v)
+            {
+                v2f o;
 
-				o.vertex = UnityObjectToClipPos(v.vertex);
+                float4 clipPos = TransformObjectToHClip(v.vertex.xyz);
 
-				float2 res = float2(_ResolutionX, _ResolutionY) * 0.5;
-				res /= o.vertex.w;
+                float originalW = clipPos.w;
 
-				o.vertex.xy *= res;
-				o.vertex.xy = floor(o.vertex.xy);
-				o.vertex.xy /= res;
+                float2 res = float2(_ResolutionX, _ResolutionY) * 0.5;
+                res /= clipPos.w;
+                clipPos.xy *= res;
+                clipPos.xy = floor(clipPos.xy);
+                clipPos.xy /= res;
 
-				o.pos = o.vertex;
+                o.vertex = clipPos;
+                o.pos = clipPos;
+                o.pos.w = originalW;
 
-				o.uv = TRANSFORM_TEX(v.uv, _MainTex) * o.vertex.w;
-				UNITY_TRANSFER_FOG(o,o.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex) * originalW;
 
-				float3 worldNormal = UnityObjectToWorldNormal(v.normal);
-				o.col = ( dot(worldNormal, float3(0, 1, 0)) + _AmbientColor ) * _Color;
+                o.fogFactor = ComputeFogFactor(clipPos.z);
 
-				return o;
-			}
+                float3 worldNormal = TransformObjectToWorldNormal(v.normal);
+                o.col = (dot(worldNormal, float3(0, 1, 0)) + _AmbientColor) * _Color;
 
-			fixed4 frag(v2f i) : SV_Target
-			{
-				float2 uv = i.uv / i.pos.w;
-				// sample the texture
-				fixed4 col = tex2D(_MainTex, uv);
-				// apply fog
-				UNITY_APPLY_FOG(i.fogCoord, col);
-				return col * i.col;
-		}
-		ENDCG
-	}
-	}
+                o.worldPos = TransformObjectToWorld(v.vertex.xyz);
+
+                return o;
+            }
+
+            half4 frag(v2f i) : SV_Target
+            {
+                float2 uv = i.uv / i.pos.w;
+                half4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+
+                // Schatten
+                float4 shadowCoord = TransformWorldToShadowCoord(i.worldPos);
+                Light mainLight = GetMainLight(shadowCoord);
+                float shadow = mainLight.shadowAttenuation;
+
+                col *= i.col * shadow;
+
+                col.rgb = MixFog(col.rgb, i.fogFactor);
+
+                return col;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags { "LightMode" = "ShadowCaster" }
+
+            ZWrite On
+            ZTest LEqual
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            float3 _LightDirection;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                float3 worldPos = TransformObjectToWorld(v.vertex.xyz);
+                float3 worldNormal = TransformObjectToWorldNormal(v.normal);
+                o.vertex = TransformWorldToHClip(ApplyShadowBias(worldPos, worldNormal, _LightDirection));
+                return o;
+            }
+
+            half4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDHLSL
+        }
+    }
 }
