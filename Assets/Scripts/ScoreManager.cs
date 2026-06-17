@@ -28,7 +28,7 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        // Load HighScore
+        // der Highscore aber nur local weil bin zu blöd um das international zu machen xD
         highScore = PlayerPrefs.GetInt("HighScore", 0);
     }
 

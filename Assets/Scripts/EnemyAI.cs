@@ -16,7 +16,7 @@ public class EnemyAI : MonoBehaviour
     public float attackCooldown = 2f;
     public float patrolIdleTime = 3f;
     public float rotationSpeed = 7f;
-    public float attackDuration = 1.0f; // Duration of attack animation 
+    public float attackDuration = 1.0f; // die dauer der animation
  
     private NavMeshAgent agent;
     private float cooldownTimer;
@@ -57,14 +57,14 @@ public class EnemyAI : MonoBehaviour
  
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
  
-        // Cancel attack if player leaves attack range
+        // bricht die angriffs animation ab falls der spieler raus aus dem radius geht
         if (isAttacking && distanceToPlayer > attackRange)
         {
             CancelAttack();
             currentState = State.Chase;
         }
  
-        // Handle attack duration manually (no animation event needed)
+        
         if (isAttacking)
         {
             attackTimer -= Time.deltaTime;
@@ -74,7 +74,7 @@ public class EnemyAI : MonoBehaviour
             }
         }
  
-        // State switching
+        // sustand wird hier gewächselt
         if (!isAttacking)
         {
             if (distanceToPlayer <= attackRange && cooldownTimer <= 0f)
@@ -85,7 +85,7 @@ public class EnemyAI : MonoBehaviour
                 currentState = State.Patrol;
         }
  
-        // Execute state
+        // zustand durchführenm
         switch (currentState)
         {
             case State.Patrol: Patrol(); break;
@@ -160,7 +160,7 @@ public class EnemyAI : MonoBehaviour
         attackTimer = attackDuration;
         agent.ResetPath();
  
-        // Rotate to face player instantly
+        // Rrotiert das monster richtung spieler
         Vector3 lookPos = new Vector3(player.position.x, transform.position.y, player.position.z);
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookPos - transform.position), Time.deltaTime * rotationSpeed);
  
@@ -192,7 +192,7 @@ public class EnemyAI : MonoBehaviour
  
         animator.ResetTrigger("Attack");
  
-        // Instantly cut the attack animation
+        // stoppt die angriuffss animtion
         if (animator.HasState(0, Animator.StringToHash("Walk")))
             animator.CrossFade("Walk", 0.1f);
         else if (animator.HasState(0, Animator.StringToHash("Walk")))

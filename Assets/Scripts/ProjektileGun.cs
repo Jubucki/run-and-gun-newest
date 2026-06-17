@@ -105,7 +105,7 @@ public class Projectile : MonoBehaviour
         // Get ray through the center of the camera (exactly matching the crosshair)
         Ray ray = fpsCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         
-        // Add spread to the ray direction
+        // Add spread to the ray direction  
         Vector3 rayDirection = ray.direction + fpsCam.transform.right * x + fpsCam.transform.up * y;
         rayDirection.Normalize();
 
@@ -113,7 +113,8 @@ public class Projectile : MonoBehaviour
         int layerMask = ~(1 << 13); // Ignore Player layer (13)
 
         // Perform raycast directly from camera to find hits
-        if (Physics.Raycast(ray.origin, rayDirection, out hit, 500f, layerMask))
+        float sphereRadius = 0.1f; // Radius anpassen
+        if (Physics.SphereCast(ray.origin, sphereRadius, rayDirection, out hit, 500f, layerMask))
         {
             Debug.Log($"Raycast hit: {hit.collider.name} on layer {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
             

@@ -1081,7 +1081,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
   maxHealth: 100
-  deathSound: {fileID: 8300000, guid: 5ca4c55c73cca63e589ba2188356420a, type: 3}
+  deathSound: {fileID: 8300000, guid: 85b3cc55d8cf7ab33a7637a67f81f772, type: 3}
   currentHealth: 0
 --- !u!114 &4309843189750412175
 MonoBehaviour:
@@ -1105,6 +1105,8 @@ MonoBehaviour:
   attackRange: 2
   attackCooldown: 1.5
   damageAmount: 10
+  ambientSound: {fileID: 8300000, guid: 7139a109cc31d0b24842d3b39c0599fb, type: 3}
+  ambientVolume: 0.6
 --- !u!1 &1312574273513674
 GameObject:
   m_ObjectHideFlags: 0

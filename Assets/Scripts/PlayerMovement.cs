@@ -66,14 +66,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        //ground check
+        //sucht nach dem boden
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
         MyInput();
         SpeedControl();
         StateHandler();
 
-        //handle drag
+        //bearbeitet den drag am boden
         if (grounded)
             rb.linearDamping = groundDrag;
         else
@@ -90,14 +90,14 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        // Go back to Main Menu
+        // sendet den spieler wieder ins Main Menu
         if (Input.GetKeyDown(menuKey))
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu#");
             return;
         }
         
-        //when to jump
+        //wann darf man springen
         if (Input.GetKeyDown(jumpKey) && readyToJump && grounded)
         {
             readyToJump = false;
@@ -107,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
             Invoke(nameof(ResetJump),jumpCooldown);
         }
         
-        //start crouch
+        //crouchen
         if (Input.GetKeyDown(crouchKey))
         {
             transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
@@ -154,28 +154,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovePlayer()
     {
-        //calculate movement direction
+        //berechnet die bewegenungs richtung
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
-        //on Slope
+        //auf einer schregen
         if (OnSlope() && !exitingSlope)
         {
             rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
         }
         
-        //on ground
+        //auf dem boden
         if(grounded)
             rb.AddForce(moveDirection.normalized * (moveSpeed * 10f), ForceMode.Force);
-        //in air
+        //in der luft
         else if(!grounded)
             rb.AddForce(moveDirection.normalized * (moveSpeed * 10f * airMultiplier), ForceMode.Force);
-        //turn gravity of on slope
-        //rb.useGravity = !OnSlope();
+      
     }
 
     private void SpeedControl()
     {
-        //limit speed on slope
+        //limitiert die geschwindigkeit auf schrägen
         if(OnSlope() && !exitingSlope)
         {
             if (rb.linearVelocity.magnitude > moveSpeed)
@@ -193,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        //resets the y velocity
+        //setzt die y velocity zurück
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }

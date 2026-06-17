@@ -1,5 +1,6 @@
-using UnityEngine;
-using System;
+    using UnityEngine;
+    using System;
+    using System.Threading.Tasks;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
 
     public event Action<int, int> OnHealthChanged;
+
+    [Header("Audio")]
+    public AudioClip deathSound;
 
     void Start()
     {
@@ -30,13 +34,26 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
+        if (deathSound != null)
+        {
+            AudioSource.PlayClipAtPoint(deathSound, transform.position);
+        }
+
         Debug.Log("Player Died.");
         if (ScoreManager.Instance != null)
         {
             LeaderboardManager.SubmitScore(ScoreManager.Instance.GetScore());
         }
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu#");
+        
+        SkipToMainMenu();
+           
     }
+
+    public async void SkipToMainMenu()
+        {
+            await Task.Delay(10000);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu#");
+        }
 
     public int GetCurrentHealth() => currentHealth;
 }

@@ -26,6 +26,11 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.5f;
     [SerializeField] private int damageAmount = 10;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip ambientSound;
+    [SerializeField] private float ambientVolume = 0.6f;
+
+    private AudioSource _audioSource;
     private NavMeshAgent _agent;
     private Animator _animator;
     private bool isChasing = false;
@@ -35,6 +40,20 @@ public class EnemyController : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
+
+        // Audio
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+            _audioSource = gameObject.AddComponent<AudioSource>();
+
+        if (ambientSound != null)
+        {
+            _audioSource.clip = ambientSound;
+            _audioSource.loop = true;
+            _audioSource.spatialBlend = 1f; // 3D sound
+            _audioSource.volume = ambientVolume;
+            _audioSource.Play();
+        }
 
         if (player == null)
         {
@@ -92,7 +111,6 @@ public class EnemyController : MonoBehaviour
             _agent.isStopped = true;
             _agent.ResetPath();
 
-            // Face the player while attacking
             Vector3 direction = (player.position - transform.position).normalized;
             direction.y = 0;
             if (direction != Vector3.zero)
@@ -121,7 +139,6 @@ public class EnemyController : MonoBehaviour
         PlayerHealth ph = player.GetComponent<PlayerHealth>();
         if (ph != null)
         {
-            // Apply damage if player is still within reach
             float distance = Vector3.Distance(transform.position, player.position);
             if (distance <= attackRange + 0.5f)
             {

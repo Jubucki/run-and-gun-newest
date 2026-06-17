@@ -14,11 +14,11 @@ public class BulletBehavior : MonoBehaviour
     {
         Debug.Log($"Bullet hit: {other.name} (Object: {other.gameObject.name}) on layer {LayerMask.LayerToName(other.gameObject.layer)}");
         
-        // Check if we hit an enemy
+        // Überprüft ob ein gegner getroffen wurde
         EnemyHealth enemyHealth = other.GetComponentInParent<EnemyHealth>();
         if (enemyHealth == null)
         {
-            // Try searching root
+            // sucht den root
             enemyHealth = other.transform.root.GetComponentInChildren<EnemyHealth>();
         }
 
@@ -34,7 +34,7 @@ public class BulletBehavior : MonoBehaviour
             Debug.Log($"No EnemyHealth found for {other.name}");
         }
 
-        // Destroy on hit with anything else (like walls)
+        // kugel verschwindet bei collision mit der wand
         if (!other.isTrigger && !other.CompareTag("Player"))
         {
             Debug.Log($"Bullet destroyed by hitting non-enemy: {other.name}");

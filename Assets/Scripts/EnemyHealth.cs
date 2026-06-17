@@ -55,7 +55,7 @@ public class EnemyHealth : MonoBehaviour
 
         if (ScoreManager.Instance != null)
         {
-            ScoreManager.Instance.AddScore(10); // Add 10 points per enemy kill
+            ScoreManager.Instance.AddScore(10); // fügt immer 10 punkt pro kill hinzu
         }
         Destroy(gameObject);
     }

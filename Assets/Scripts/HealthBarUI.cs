@@ -16,7 +16,7 @@ public class HealthBarUI : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.OnHealthChanged += UpdateHealthBar;
-            // Initial update in case Start already ran
+            // updatet die Healthbar
             UpdateHealthBar(playerHealth.GetCurrentHealth(), playerHealth.maxHealth);
         }
     }
