@@ -19,12 +19,7 @@
 
 ## 📸 Screenshots
 
-![](Screenshots/Pasted%20image%2020260617161725.png)
-![](Screenshots/Pasted%20image%2020260617161755.png)
-![](Screenshots/Pasted%20image%2020260617161830.png)
-![](Screenshots/Pasted%20image%2020260617161913.png)
-![](Screenshots/Pasted%20image%2020260617161952.png)
-
+[Screenshots ansehen](Screenshots/)
 ---
 
 ## ✨ Features
