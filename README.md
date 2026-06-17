@@ -36,7 +36,7 @@
 ## 🚀 Installation
 
 ```bash
-git clone https// kein plan gerade wie das genau aussieht der befehl
+git clone https://github.com/Jubucki/run-and-gun-newest.git
 ```
 
 Dann in Unity öffnen (2022.3+), fertig.
