@@ -36,7 +36,7 @@
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/dein-name/projekt.git
+git clone https// kein plan gerade wie das genau aussieht der befehl
 ```
 
 Dann in Unity öffnen (2022.3+), fertig.
