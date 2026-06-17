@@ -41,6 +41,7 @@ git clone https://github.com/Jubucki/run-and-gun-newest.git
 
 Dann in Unity öffnen (2022.3+), fertig.
 
+To start the game, go to the Assets folder, open the Scenes folder, and then open the MainMenu scene.
 ---
 
 ## 🛠️ Built With
