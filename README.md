@@ -27,8 +27,9 @@
 
 - Zombie AI mit NavMesh
 - PS1-Style Retro Shader
-- Blackjack Minigame (Still work in Progress)
 - Wave-based Enemy Spawner
+- Blackjack Minigame (Still work in Progress)
+- Pearks through out playing Blackjack (Still work in Progress)
 
 ---
 
@@ -47,6 +48,7 @@ Dann in Unity öffnen (2022.3+), fertig.
 - Unity URP
 - C#
 - TextMeshPro
+- UI Toolkit
 
 ---
 ## 👥 Team
