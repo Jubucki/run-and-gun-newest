@@ -1,6 +1,15 @@
-# 🧟 Project Title
+# 🧟 Run and Gun
 
-> Kurze, coole Beschreibung in einem Satz.
+<h1 align="center">🔫 Run and Gun</h1>
+<p align="center">
+  A PS1-style horror shooter — fight through waves of ghouls, then hit the Blackjack table.
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Unity-URP-black?logo=unity" />
+  <img src="https://img.shields.io/badge/C%23-purple?logo=csharp" />
+  <img src="https://img.shields.io/badge/status-in%20development-orange" />
+  <img src="https://img.shields.io/badge/license-MIT-green" />
+</p>
 
 ![Unity](https://img.shields.io/badge/Unity-2022.3-black?logo=unity)
 ![C#](https://img.shields.io/badge/C%23-purple?logo=csharp)
@@ -40,6 +49,19 @@ Dann in Unity öffnen (2022.3+), fertig.
 - TextMeshPro
 
 ---
+## 👥 Team
+ 
+This project was developed as a group effort — all members contributed collaboratively across every part of the game, including the shooter mechanics, enemy AI, shader work and game design.
+ 
+---
+ 
+## 🚧 Coming Soon
+ 
+The Blackjack table scene is already designed but could not be fully implemented in time for this submission. Full integration of the in-world casino — including the playable Blackjack minigame — is planned for the upcoming **project week** and will be added to this repository once complete.
+ 
+---
+
+Last thi
 
 ## 📄 License
 
