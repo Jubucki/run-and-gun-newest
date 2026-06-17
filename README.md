@@ -44,6 +44,18 @@ Dann in Unity öffnen (2022.3+), fertig.
 To start the game, go to the Assets folder, open the Scenes folder, and then open the MainMenu scene.
 ---
 
+##Problem Fix
+
+<p align="center">
+  <img src="Screenshots/WhatsApp Image 2026-06-17 at 23.13.56.jpeg" width="45%" />
+  <img src="Screenshots/WhatsApp Image 2026-06-17 at 23.17.35.jpeg" width="45%" />
+</p>
+<p align="center">
+  <em>Nach dem Clone: Ghoul-Prefab aus der Hierarchy nochmal in den EnemySpawner ziehen & Bounds auf Ghoul:Tube1 setzen, sonst sind die Ghouls unsichtbar</em>
+</p>
+
+---
+
 ## 🛠️ Built With
 
 - Unity URP
