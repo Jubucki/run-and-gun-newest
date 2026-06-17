@@ -72,7 +72,7 @@ This project was developed as a group effort — all members contributed collabo
  
 ## 🚧 Coming Soon
  
-The Blackjack table scene is already designed but could not be fully implemented in time for this submission. Full integration of the in-world casino — including the playable Blackjack minigame — is planned for the upcoming **project week** and will be added to this repository once complete.
+The Blackjack table scene is already designed but could not be fully implemented in time for this submission. Full integration of the in-world casino — including the playable [Blackjack minigame](https://github.com/MisuSleep/Run-N-Gun---Blackjack) — is planned for the upcoming **project week** and will be added to this repository once complete.
  
 ---
 
