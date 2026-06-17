@@ -20,6 +20,7 @@
 ## 📸 Screenshots
 
 [Screenshots ansehen](Screenshots/)
+
 ---
 
 ## ✨ Features
